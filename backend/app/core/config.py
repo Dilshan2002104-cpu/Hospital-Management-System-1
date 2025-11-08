@@ -29,14 +29,14 @@ class Settings(BaseSettings):
     create_default_admin: bool = True  # Set to False to disable auto admin creation
 
     # CORS - Handle both JSON list and comma-separated string
-    allowed_origins: List[str] = ["http://localhost:3000", "http://localhost:5173"]
+    allowed_origins: str = "http://localhost:3000,http://localhost:5173"
 
-    @field_validator('allowed_origins', mode='before')
-    @classmethod
-    def parse_cors_origins(cls, v):
-        if isinstance(v, str):
-            return [origin.strip() for origin in v.split(",")]
-        return v
+    @property
+    def get_allowed_origins(self) -> List[str]:
+        """Parse CORS origins from string to list"""
+        if isinstance(self.allowed_origins, str):
+            return [origin.strip() for origin in self.allowed_origins.split(",")]
+        return self.allowed_origins if isinstance(self.allowed_origins, list) else []
 
     class Config:
         env_file = ".env"

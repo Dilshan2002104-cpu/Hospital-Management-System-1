@@ -10,6 +10,7 @@ import DischargesFlowTab from '../components/WardDataEntry/DischargesFlowTab';
 import DiagnosticsTab from '../components/WardDataEntry/DiagnosticsTab';
 import ReferralsTab from '../components/WardDataEntry/ReferralsTab';
 import YearlyOverviewTab from '../components/WardDataEntry/YearlyOverviewTab';
+import Ward1StatisticsTab from '../components/WardDataEntry/Ward1StatisticsTab';
 
 export default function Ward1Dashboard() {
   const navigate = useNavigate();
@@ -413,18 +414,38 @@ export default function Ward1Dashboard() {
         <aside className="w-64 bg-white shadow-sm">
           <div className="p-6">
             <nav className="space-y-2">
-              <div className="w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg bg-indigo-100 text-indigo-700">
+              <button
+                onClick={() => setActiveDataTab('data-entry')}
+                className={`w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg transition ${
+                  ['overview', 'admissions', 'discharges', 'diagnostics', 'referrals'].includes(activeDataTab)
+                    ? 'bg-indigo-100 text-indigo-700'
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
+              >
                 <span className="mr-3">📊</span>
                 Monthly Data Entry
-              </div>
+              </button>
+              
+              <button
+                onClick={() => setActiveDataTab('statistics')}
+                className={`w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg transition ${
+                  activeDataTab === 'statistics'
+                    ? 'bg-indigo-100 text-indigo-700'
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                <span className="mr-3">📈</span>
+                Ward 1 Statistics Report
+              </button>
             </nav>
           </div>
         </aside>
 
         {/* Main Content */}
         <main className="flex-1 p-6">
-          {/* Month Selection Header */}
-          <div className="mb-6 bg-white rounded-lg shadow-sm p-4 flex items-center justify-between">
+          {/* Month Selection Header - Only show for data entry tabs */}
+          {activeDataTab !== 'statistics' && (
+            <div className="mb-6 bg-white rounded-lg shadow-sm p-4 flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Year</label>
@@ -526,91 +547,101 @@ export default function Ward1Dashboard() {
               </div>
             )}
           </div>
+          )}
 
-          {/* Data Entry Tabs */}
-          {loading ? (
-            <div className="bg-white rounded-lg shadow-sm p-8 text-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto mb-4"></div>
-              <p className="text-gray-600">Loading monthly data...</p>
-            </div>
+          {/* Main Content Area */}
+          {activeDataTab === 'statistics' ? (
+            /* Statistics Report View */
+            <Ward1StatisticsTab 
+              selectedYear={selectedYear}
+              disabled={false}
+            />
           ) : (
-            <div className="bg-white rounded-lg shadow-sm">
-            {/* Tab Navigation */}
-            <div className="border-b border-gray-200">
-              <nav className="flex space-x-8 px-6">
-                {[
-                  { id: 'overview', name: 'Yearly Overview', icon: '📅' },
-                  { id: 'admissions', name: 'Admissions', icon: '🏥' },
-                  { id: 'discharges', name: 'Discharges', icon: '📊' },
-                  { id: 'referrals', name: 'Referrals', icon: '👨‍⚕️' },
-                  { id: 'diagnostics', name: 'Diagnostics', icon: '🔬' }
-                ].map(tab => (
-                  <button
-                    key={tab.id}
-                    onClick={() => setActiveDataTab(tab.id)}
-                    className={`py-4 px-1 border-b-2 font-medium text-sm transition ${
-                      activeDataTab === tab.id
-                        ? 'border-indigo-500 text-indigo-600'
-                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                    }`}
-                  >
-                    <span className="mr-2">{tab.icon}</span>
-                    {tab.name}
-                  </button>
-                ))}
-              </nav>
-            </div>
+            /* Data Entry Tabs */
+            loading ? (
+              <div className="bg-white rounded-lg shadow-sm p-8 text-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto mb-4"></div>
+                <p className="text-gray-600">Loading monthly data...</p>
+              </div>
+            ) : (
+              <div className="bg-white rounded-lg shadow-sm">
+              {/* Tab Navigation */}
+              <div className="border-b border-gray-200">
+                <nav className="flex space-x-8 px-6">
+                  {[
+                    { id: 'overview', name: 'Yearly Overview', icon: '📅' },
+                    { id: 'admissions', name: 'Admissions', icon: '🏥' },
+                    { id: 'discharges', name: 'Discharges', icon: '📊' },
+                    { id: 'referrals', name: 'Referrals', icon: '👨‍⚕️' },
+                    { id: 'diagnostics', name: 'Diagnostics', icon: '🔬' }
+                  ].map(tab => (
+                    <button
+                      key={tab.id}
+                      onClick={() => setActiveDataTab(tab.id)}
+                      className={`py-4 px-1 border-b-2 font-medium text-sm transition ${
+                        activeDataTab === tab.id
+                          ? 'border-indigo-500 text-indigo-600'
+                          : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      }`}
+                    >
+                      <span className="mr-2">{tab.icon}</span>
+                      {tab.name}
+                    </button>
+                  ))}
+                </nav>
+              </div>
 
-            {/* Tab Content */}
-            <div className="p-6">
-              {activeDataTab === 'overview' && (
-                <YearlyOverviewTab 
-                  selectedYear={selectedYear}
-                  onNavigateToMonth={(month) => {
-                    setSelectedMonth(month);
-                    setActiveDataTab('admissions'); // Switch to admissions tab when navigating to a month
-                  }}
-                  disabled={false}
-                />
-              )}
+              {/* Tab Content */}
+              <div className="p-6">
+                {activeDataTab === 'overview' && (
+                  <YearlyOverviewTab 
+                    selectedYear={selectedYear}
+                    onNavigateToMonth={(month) => {
+                      setSelectedMonth(month);
+                      setActiveDataTab('admissions'); // Switch to admissions tab when navigating to a month
+                    }}
+                    disabled={false}
+                  />
+                )}
 
-              {activeDataTab === 'admissions' && (
-                <AdmissionsTab 
-                  key={`admissions-${selectedYear}-${selectedMonth}`}
-                  data={monthlyData} 
-                  updateData={(field, value) => setMonthlyData(prev => ({ ...prev, [field]: value }))}
-                  disabled={false}
-                />
-              )}
-              
-              {activeDataTab === 'discharges' && (
-                <DischargesFlowTab 
-                  key={`discharges-${selectedYear}-${selectedMonth}`}
-                  data={monthlyData} 
-                  updateData={(field, value) => setMonthlyData(prev => ({ ...prev, [field]: value }))}
-                  disabled={false}
-                />
-              )}
-              
-              {activeDataTab === 'diagnostics' && (
-                <DiagnosticsTab 
-                  key={`diagnostics-${selectedYear}-${selectedMonth}`}
-                  data={monthlyData} 
-                  updateData={(field, value) => setMonthlyData(prev => ({ ...prev, [field]: value }))}
-                  disabled={false}
-                />
-              )}
-              
-              {activeDataTab === 'referrals' && (
-                <ReferralsTab 
-                  key={`referrals-${selectedYear}-${selectedMonth}`}
-                  data={monthlyData} 
-                  updateData={(field, value) => setMonthlyData(prev => ({ ...prev, [field]: value }))}
-                  disabled={false}
-                />
-              )}
-            </div>
-            </div>
+                {activeDataTab === 'admissions' && (
+                  <AdmissionsTab 
+                    key={`admissions-${selectedYear}-${selectedMonth}`}
+                    data={monthlyData} 
+                    updateData={(field, value) => setMonthlyData(prev => ({ ...prev, [field]: value }))}
+                    disabled={false}
+                  />
+                )}
+                
+                {activeDataTab === 'discharges' && (
+                  <DischargesFlowTab 
+                    key={`discharges-${selectedYear}-${selectedMonth}`}
+                    data={monthlyData} 
+                    updateData={(field, value) => setMonthlyData(prev => ({ ...prev, [field]: value }))}
+                    disabled={false}
+                  />
+                )}
+                
+                {activeDataTab === 'diagnostics' && (
+                  <DiagnosticsTab 
+                    key={`diagnostics-${selectedYear}-${selectedMonth}`}
+                    data={monthlyData} 
+                    updateData={(field, value) => setMonthlyData(prev => ({ ...prev, [field]: value }))}
+                    disabled={false}
+                  />
+                )}
+                
+                {activeDataTab === 'referrals' && (
+                  <ReferralsTab 
+                    key={`referrals-${selectedYear}-${selectedMonth}`}
+                    data={monthlyData} 
+                    updateData={(field, value) => setMonthlyData(prev => ({ ...prev, [field]: value }))}
+                    disabled={false}
+                  />
+                )}
+              </div>
+              </div>
+            )
           )}
         </main>
       </div>

@@ -1,23 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Ward1ReportsApi from '../../services/ward1ReportsApi';
 
-export default function YearlyOverviewTab({ selectedYear, onNavigateToMonth, disabled }) {
+// Month names for display - constant array
+const monthNames = [
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December'
+];
+
+export default function YearlyOverviewTab({ selectedYear, onNavigateToMonth }) {
   const [yearlyData, setYearlyData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Month names for display
-  const monthNames = [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'
-  ];
-
-  // Load yearly data when component mounts or year changes
-  useEffect(() => {
-    loadYearlyData();
-  }, [selectedYear]);
-
-  const loadYearlyData = async () => {
+  // Load yearly data function
+  const loadYearlyData = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -65,7 +61,12 @@ export default function YearlyOverviewTab({ selectedYear, onNavigateToMonth, dis
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedYear]);
+
+  // Load yearly data when component mounts or year changes
+  useEffect(() => {
+    loadYearlyData();
+  }, [loadYearlyData]);
 
   // Get status badge styling
   const getStatusBadge = (hasData, status) => {
