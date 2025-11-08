@@ -9,6 +9,7 @@ import AdmissionsTab from '../components/WardDataEntry/AdmissionsTab';
 import DischargesFlowTab from '../components/WardDataEntry/DischargesFlowTab';
 import DiagnosticsTab from '../components/WardDataEntry/DiagnosticsTab';
 import ReferralsTab from '../components/WardDataEntry/ReferralsTab';
+import YearlyOverviewTab from '../components/WardDataEntry/YearlyOverviewTab';
 
 export default function Ward1Dashboard() {
   const navigate = useNavigate();
@@ -23,7 +24,7 @@ export default function Ward1Dashboard() {
     return parseInt(localStorage.getItem('ward1_selected_month')) || new Date().getMonth() + 1;
   });
   const [activeDataTab, setActiveDataTab] = useState(() => {
-    return localStorage.getItem('ward1_active_tab') || 'admissions';
+    return localStorage.getItem('ward1_active_tab') || 'overview';
   });
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -538,6 +539,7 @@ export default function Ward1Dashboard() {
             <div className="border-b border-gray-200">
               <nav className="flex space-x-8 px-6">
                 {[
+                  { id: 'overview', name: 'Yearly Overview', icon: '📅' },
                   { id: 'admissions', name: 'Admissions', icon: '🏥' },
                   { id: 'discharges', name: 'Discharges', icon: '📊' },
                   { id: 'referrals', name: 'Referrals', icon: '👨‍⚕️' },
@@ -561,6 +563,17 @@ export default function Ward1Dashboard() {
 
             {/* Tab Content */}
             <div className="p-6">
+              {activeDataTab === 'overview' && (
+                <YearlyOverviewTab 
+                  selectedYear={selectedYear}
+                  onNavigateToMonth={(month) => {
+                    setSelectedMonth(month);
+                    setActiveDataTab('admissions'); // Switch to admissions tab when navigating to a month
+                  }}
+                  disabled={false}
+                />
+              )}
+
               {activeDataTab === 'admissions' && (
                 <AdmissionsTab 
                   key={`admissions-${selectedYear}-${selectedMonth}`}

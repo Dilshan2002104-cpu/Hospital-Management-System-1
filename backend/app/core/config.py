@@ -2,6 +2,7 @@ try:
     from pydantic_settings import BaseSettings
 except ImportError:
     from pydantic import BaseSettings
+from pydantic import field_validator
 from typing import List, Union
 import os
 
@@ -30,15 +31,16 @@ class Settings(BaseSettings):
     # CORS - Handle both JSON list and comma-separated string
     allowed_origins: List[str] = ["http://localhost:3000", "http://localhost:5173"]
 
+    @field_validator('allowed_origins', mode='before')
+    @classmethod
+    def parse_cors_origins(cls, v):
+        if isinstance(v, str):
+            return [origin.strip() for origin in v.split(",")]
+        return v
+
     class Config:
         env_file = ".env"
         case_sensitive = False
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        # Handle comma-separated CORS origins from env if needed
-        if isinstance(self.allowed_origins, str):
-            self.allowed_origins = [origin.strip() for origin in self.allowed_origins.split(",")]
 
 
 settings = Settings()
