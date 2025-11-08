@@ -32,5 +32,6 @@ def create_tables():
     """Create all database tables"""
     # Import all models to ensure they are registered with Base
     from app.models import Department, User  # Import all models here
+    from app.models.ward1_monthly_report import Ward1MonthlyReport
     
     Base.metadata.create_all(bind=engine)

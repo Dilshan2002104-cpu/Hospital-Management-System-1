@@ -1,4 +1,4 @@
-import React, { createContext, useState } from 'react';
+import React, { createContext, useState, useCallback } from 'react';
 import Toast from '../components/Toast';
 
 // Create context in a separate file to avoid Fast Refresh issues
@@ -7,22 +7,22 @@ const ToastContext = createContext();
 const ToastProvider = ({ children }) => {
   const [toasts, setToasts] = useState([]);
 
-  const showToast = (message, type = 'success', duration = 3000) => {
+  const showToast = useCallback((message, type = 'success', duration = 3000) => {
     const id = Date.now() + Math.random();
     const newToast = { id, message, type, duration };
     
     setToasts(prevToasts => [...prevToasts, newToast]);
-  };
+  }, []);
 
-  const removeToast = (id) => {
+  const removeToast = useCallback((id) => {
     setToasts(prevToasts => prevToasts.filter(toast => toast.id !== id));
-  };
+  }, []);
 
   // Convenience methods
-  const success = (message, duration) => showToast(message, 'success', duration);
-  const error = (message, duration) => showToast(message, 'error', duration);
-  const warning = (message, duration) => showToast(message, 'warning', duration);
-  const info = (message, duration) => showToast(message, 'info', duration);
+  const success = useCallback((message, duration) => showToast(message, 'success', duration), [showToast]);
+  const error = useCallback((message, duration) => showToast(message, 'error', duration), [showToast]);
+  const warning = useCallback((message, duration) => showToast(message, 'warning', duration), [showToast]);
+  const info = useCallback((message, duration) => showToast(message, 'info', duration), [showToast]);
 
   return (
     <ToastContext.Provider value={{ showToast, success, error, warning, info }}>
